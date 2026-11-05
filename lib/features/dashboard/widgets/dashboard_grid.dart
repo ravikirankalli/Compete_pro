@@ -29,13 +29,14 @@ class DashboardGrid extends StatelessWidget {
         final topPad = 18.0 * scale;
         final rows = (cards.length / 2).ceil();
         final tileWidth = (constraints.maxWidth - hPad * 2 - gap) / 2;
-        // Near-square tiles, as in the reference design; shrink the height if
-        // the screen is short rather than letting the grid overflow.
+        // Tall tiles, giving the illustration room to breathe. The height is
+        // still capped to what the viewport can show, so a short screen
+        // shrinks the tiles rather than overflowing the grid.
         final available =
             constraints.maxHeight - topPad - gap * (rows - 1) - 12;
         final tileHeight = math.max(
           150.0,
-          math.min(tileWidth / 0.86, available / rows),
+          math.min(tileWidth / 0.66, available / rows),
         );
 
         return EdgeFade(
@@ -152,11 +153,19 @@ class _GridTile extends StatelessWidget {
                         ),
                       ),
                     SizedBox(height: 4 * scale),
+                    // Full width so the icon centres on the card, not on the
+                    // space left over beside the heading.
                     Expanded(
-                      child: Image.asset(
-                        data.image,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Center(
+                          child: Image.asset(
+                            data.image,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            filterQuality: FilterQuality.high,
+                          ),
+                        ),
                       ),
                     ),
                   ],
