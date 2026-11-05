@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_fonts.dart';
 import '../dashboard_data.dart';
+import 'arena_backdrop.dart';
 import 'edge_fade.dart';
-import 'tile_frame.dart';
 
 /// Two-column grid of tall tiles (used by the Competitions section).
 class DashboardGrid extends StatelessWidget {
@@ -29,12 +29,13 @@ class DashboardGrid extends StatelessWidget {
         final topPad = 18.0 * scale;
         final rows = (cards.length / 2).ceil();
         final tileWidth = (constraints.maxWidth - hPad * 2 - gap) / 2;
-        // tiles are ~0.68 (w/h); shrink height if the screen is short
+        // Near-square tiles, as in the reference design; shrink the height if
+        // the screen is short rather than letting the grid overflow.
         final available =
             constraints.maxHeight - topPad - gap * (rows - 1) - 12;
         final tileHeight = math.max(
           150.0,
-          math.min(tileWidth / 0.68, available / rows),
+          math.min(tileWidth / 0.86, available / rows),
         );
 
         return EdgeFade(
@@ -91,60 +92,90 @@ class _GridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TileFrame(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          8 * scale,
-          12 * scale,
-          8 * scale,
-          10 * scale,
-        ),
-        child: Column(
-          children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                data.headline,
-                style: TextStyle(
-                  fontFamily: AppFonts.condensed,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 30 * scale,
-                  height: 1.0,
-                  letterSpacing: 0.3,
-                  color: data.headlineColor,
+    final radius = BorderRadius.circular(14 * scale);
+    // The heading sits top-left over the pale part of the arena wash, with the
+    // illustration filling the rest of the card.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: data.accent.withValues(alpha: 0.22),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: radius,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: data.accent.withValues(alpha: 0.12),
+          highlightColor: data.accent.withValues(alpha: 0.06),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ArenaBackdrop(accent: data.accent),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  11 * scale,
+                  10 * scale,
+                  11 * scale,
+                  8 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.headline,
+                      style: TextStyle(
+                        fontFamily: AppFonts.condensed,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 19 * scale,
+                        height: 1.0,
+                        letterSpacing: 0.2,
+                        color: data.headlineColor,
+                      ),
+                    ),
+                    if (data.subtitle != null)
+                      Text(
+                        data.subtitle!,
+                        style: TextStyle(
+                          fontFamily: AppFonts.condensed,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 19 * scale,
+                          height: 1.05,
+                          letterSpacing: 0.2,
+                          color: data.subtitleColor,
+                        ),
+                      ),
+                    SizedBox(height: 4 * scale),
+                    Expanded(
+                      child: Image.asset(
+                        data.image,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            if (data.subtitle != null) ...[
-              SizedBox(height: 2 * scale),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  data.subtitle!,
-                  style: TextStyle(
-                    fontFamily: AppFonts.condensed,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 17 * scale,
-                    height: 1.1,
-                    letterSpacing: 0.4,
-                    color: data.subtitleColor,
+              // Accent border drawn last so it is never covered by the backdrop.
+              IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: radius,
+                    border: Border.all(
+                      color: data.accent,
+                      width: 2.2 * scale,
+                    ),
                   ),
                 ),
               ),
             ],
-            SizedBox(height: 8 * scale),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(4 * scale),
-                child: Image.asset(
-                  data.image,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

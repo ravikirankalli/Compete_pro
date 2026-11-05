@@ -11,6 +11,7 @@ import '../../core/widgets/corner_slogan.dart';
 import '../../core/widgets/ribbon_layer.dart';
 import '../../core/widgets/trust_attribution.dart';
 import '../dashboard/dashboard_screen.dart';
+import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _codeController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordFocus = FocusNode();
+  final _authService = AuthService();
 
   bool _obscurePassword = true;
   bool _submitting = false;
@@ -43,24 +45,52 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _submitting = true);
-    // TODO: replace with the Compete Pro authentication API call.
-    await Future<void>.delayed(const Duration(milliseconds: 900));
+
+    final result = await _authService.login(
+      organizerId: _codeController.text.trim(),
+      password: _passwordController.text,
+    );
+
     if (!mounted) return;
     setState(() => _submitting = false);
+
+    if (!result.success) {
+      _showMessage(result.message ?? 'Login failed. Please try again.');
+      return;
+    }
+
+    final organiserCode =
+        result.organizer?.organizerCode ?? _codeController.text.trim();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 450),
         pageBuilder: (_, _, _) =>
-            DashboardScreen(organiserCode: _codeController.text.trim()),
+            DashboardScreen(organiserCode: organiserCode),
         transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),
       ),
     );
   }
 
-  void _onForgotPassword() {
-    _showMessage('Forgot password is not available yet.');
+  Future<void> _onForgotPassword() async {
+    final email = _codeController.text.trim();
+    if (!email.contains('@')) {
+      _showMessage(
+        'Enter the e-mail address registered for your account, then tap '
+        'Forgot password.',
+      );
+      return;
+    }
+
+    setState(() => _submitting = true);
+    final result = await _authService.requestPasswordReset(email);
+    if (!mounted) return;
+    setState(() => _submitting = false);
+
+    _showMessage(
+      result.message ?? 'If the e-mail exists, a reset code has been sent.',
+    );
   }
 
   void _showMessage(String message) {

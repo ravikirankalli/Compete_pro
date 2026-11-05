@@ -61,4 +61,11 @@ abstract final class AppColors {
   static const tileGold = Color(0xFFB8862B);
   static const tileGoldLight = Color(0xFFE8C77A);
   static const tileRed = Color(0xFFA50E1F);
+
+  /// Per-card accents for the Competitions grid: each card carries its own
+  /// border, heading and backdrop tint.
+  static const tileBlue = Color(0xFF2A5FA8);
+  static const tileCrimson = Color(0xFF9E1B32);
+  static const tileAmber = Color(0xFFC8912C);
+  static const tileGreen = Color(0xFF1F7A4C);
 }
