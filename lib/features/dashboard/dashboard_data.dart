@@ -14,8 +14,10 @@ class DashboardCardData {
     this.subtitle,
     required this.headlineColor,
     Color? subtitleColor,
+    Color? accent,
     required this.image,
-  }) : subtitleColor = subtitleColor ?? headlineColor;
+  })  : subtitleColor = subtitleColor ?? headlineColor,
+        accent = accent ?? headlineColor;
 
   /// Human readable name, used in messages and menus.
   final String title;
@@ -23,6 +25,11 @@ class DashboardCardData {
   final String? subtitle;
   final Color headlineColor;
   final Color subtitleColor;
+
+  /// Drives the card border and the arena backdrop tint on the Competitions
+  /// grid. Falls back to the headline colour for the list sections, which do
+  /// not use it.
+  final Color accent;
   final String image;
 }
 
@@ -37,29 +44,32 @@ enum DashboardSection {
         title: 'New Competitions',
         headline: 'NEW',
         subtitle: 'COMPETITIONS',
-        headlineColor: AppColors.navy,
+        headlineColor: AppColors.tileBlue,
+        accent: AppColors.tileBlue,
         image: '$_logos/new_competitions.png',
       ),
       DashboardCardData(
         title: 'Group Formation',
         headline: 'GROUP',
         subtitle: 'FORMATION',
-        headlineColor: AppColors.navy,
+        headlineColor: AppColors.tileCrimson,
+        accent: AppColors.tileCrimson,
         image: '$_logos/group_formation.png',
       ),
       DashboardCardData(
         title: 'Match Schedule',
         headline: 'MATCH',
         subtitle: 'SCHEDULE',
-        headlineColor: AppColors.tileRed,
+        headlineColor: AppColors.tileAmber,
+        accent: AppColors.tileAmber,
         image: '$_logos/match_schedule.png',
       ),
       DashboardCardData(
         title: 'Match Result',
         headline: 'MATCH',
         subtitle: 'RESULT',
-        headlineColor: AppColors.navy,
-        subtitleColor: AppColors.tileGold,
+        headlineColor: AppColors.tileGreen,
+        accent: AppColors.tileGreen,
         image: '$_logos/match_result.png',
       ),
     ],
